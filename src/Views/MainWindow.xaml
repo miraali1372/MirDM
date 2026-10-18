@@ -1,0 +1,382 @@
+<Window x:Class="MirDM.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:MirDM.Controls"
+        Title="MirDM — Ultra-Speed Download Manager"
+        Width="1080" Height="680"
+        MinWidth="800" MinHeight="500"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None"
+        Background="#0D1117"
+        Foreground="#F0F6FC">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="38" CornerRadius="0" GlassFrameThickness="0" ResizeBorderThickness="6" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Border BorderBrush="#30363D" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <!-- Titlebar -->
+                <RowDefinition Height="38" />
+                <!-- Toolbar -->
+                <RowDefinition Height="52" />
+                <!-- Downloads DataGrid -->
+                <RowDefinition Height="*" />
+                <!-- Splitter -->
+                <RowDefinition Height="5" />
+                <!-- Bottom Visualizer Panel (Heatmap + Speed Graph) -->
+                <RowDefinition Height="200" MinHeight="140" MaxHeight="350" />
+                <!-- Statusbar -->
+                <RowDefinition Height="28" />
+            </Grid.RowDefinitions>
+
+            <!-- 1. Custom TitleBar -->
+            <Grid Grid.Row="0" Background="#161B22">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Icon and Title -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
+                    <TextBlock Text="⚡" FontSize="16" Foreground="#58A6FF" Margin="0,0,8,0" VerticalAlignment="Center" />
+                    <TextBlock Text="MirDM" FontWeight="Bold" FontSize="13" Foreground="#F0F6FC" VerticalAlignment="Center" />
+                    <TextBlock Text=" — Ultra-Speed Download Manager" FontSize="12.5" Foreground="#8B949E" VerticalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Window Control Buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Button Style="{StaticResource TitleBarButton}" Click="MinimizeButton_Click" ToolTip="Minimize">
+                        <TextBlock Text="—" FontSize="10" Foreground="#8B949E" />
+                    </Button>
+                    <Button x:Name="MaximizeBtn" Style="{StaticResource TitleBarButton}" Click="MaximizeButton_Click" ToolTip="Maximize / Restore">
+                        <TextBlock x:Name="MaximizeGlyph" Text="🗖" FontSize="11" Foreground="#8B949E" />
+                    </Button>
+                    <Button Style="{StaticResource TitleBarCloseButton}" Click="CloseButton_Click" ToolTip="Close to Tray">
+                        <TextBlock Text="✕" FontSize="11" />
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- 2. Modern Fluent Toolbar -->
+            <Border Grid.Row="1" Background="#161B22" BorderBrush="#30363D" BorderThickness="0,1,0,1" Padding="14,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <!-- Add Download Button -->
+                        <Button Style="{StaticResource PrimaryButton}" Margin="0,0,8,0" Click="AddDownload_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="➕" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Add Download" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Add Batch Button -->
+                        <Button Style="{StaticResource ToolButton}" Margin="0,0,8,0" Click="AddBatch_Click" ToolTip="Batch Download &amp; Wildcard Generator (دانلود دسته‌ای)">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📋" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Add Batch" FontWeight="SemiBold" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Resume Button -->
+                        <Button x:Name="ResumeButton" Style="{StaticResource ToolButton}" Margin="0,0,6,0" Click="Resume_Click" IsEnabled="False">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="▶" Foreground="#238636" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Resume" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Pause Button -->
+                        <Button x:Name="PauseButton" Style="{StaticResource ToolButton}" Margin="0,0,6,0" Click="Pause_Click" IsEnabled="False">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="⏸" Foreground="#D29922" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Pause" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Remove Button -->
+                        <Button x:Name="RemoveButton" Style="{StaticResource DangerButton}" Margin="0,0,6,0" Click="Remove_Click" IsEnabled="False">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="✖" Foreground="#F85149" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Remove" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Clear List Button -->
+                        <Button x:Name="ClearListButton" Style="{StaticResource ToolButton}" Margin="0,0,6,0" Click="ClearList_Click" ToolTip="Clear items from list without deleting physical files (پاک کردن لیست)">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🧹" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Clear List" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Open Folder Button -->
+                        <Button x:Name="OpenFolderButton" Style="{StaticResource ToolButton}" Margin="0,0,6,0" Click="OpenFolder_Click" IsEnabled="False">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📁" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Open Folder" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Settings Button -->
+                        <Button Style="{StaticResource ToolButton}" Click="Settings_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="⚙" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Center" />
+                                <TextBlock Text="Settings" VerticalAlignment="Center" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Search Filter Box -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="🔍" FontSize="12" Foreground="#8B949E" Margin="0,0,6,0" VerticalAlignment="Center" />
+                        <TextBox x:Name="SearchBox" Width="200" Height="30" FontSize="12" TextChanged="SearchBox_TextChanged" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- 3. Downloads DataGrid -->
+            <Grid Grid.Row="2" Background="#0D1117">
+                <DataGrid x:Name="DownloadsDataGrid"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          CanUserResizeRows="False"
+                          GridLinesVisibility="None"
+                          HeadersVisibility="Column"
+                          Background="#0D1117"
+                          RowBackground="#0D1117"
+                          AlternatingRowBackground="#161B22"
+                          BorderThickness="0"
+                          Foreground="#F0F6FC"
+                          SelectionMode="Extended"
+                          SelectionUnit="FullRow"
+                          IsReadOnly="True"
+                          SelectionChanged="DownloadsDataGrid_SelectionChanged"
+                          MouseDoubleClick="DownloadsDataGrid_MouseDoubleClick">
+
+                    <DataGrid.ContextMenu>
+                        <ContextMenu Background="#161B22" Foreground="#F0F6FC" BorderBrush="#30363D">
+                            <MenuItem Header="▶ Resume Download" Click="MenuResume_Click" />
+                            <MenuItem Header="⏸ Pause Download" Click="MenuPause_Click" />
+                            <Separator Background="#30363D" />
+                            <MenuItem Header="🚀 Open File" Click="MenuOpenFile_Click" />
+                            <MenuItem Header="📁 Open Containing Folder" Click="MenuOpenFolder_Click" />
+                            <MenuItem Header="📋 Copy Download Link" Click="MenuCopyLink_Click" />
+                            <Separator Background="#30363D" />
+                            <MenuItem Header="✖ Remove from List" Click="MenuRemoveTask_Click" />
+                            <MenuItem Header="🧹 Clear Completed Downloads" Click="MenuClearCompleted_Click" />
+                            <MenuItem Header="🧹 Clear Entire List (Keep Files)" Click="MenuClearAll_Click" />
+                            <Separator Background="#30363D" />
+                            <MenuItem Header="🗑 Delete File and Task" Click="MenuDeleteFileAndTask_Click" Foreground="#F85149" />
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+
+                    <!-- DataGrid Row Style with Modern Selection -->
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Height" Value="42" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                            <Setter Property="Cursor" Value="Hand" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="#1F2836" />
+                                    <Setter Property="BorderBrush" Value="#2F81F7" />
+                                    <Setter Property="BorderThickness" Value="1,0,0,0" />
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#21262D" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+
+                    <!-- Column Header Style -->
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="#161B22" />
+                            <Setter Property="Foreground" Value="#8B949E" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                            <Setter Property="FontSize" Value="11.5" />
+                            <Setter Property="Height" Value="32" />
+                            <Setter Property="Padding" Value="10,0" />
+                            <Setter Property="BorderBrush" Value="#30363D" />
+                            <Setter Property="BorderThickness" Value="0,0,1,1" />
+                            <Setter Property="VerticalContentAlignment" Value="Center" />
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+
+                    <DataGrid.Columns>
+                        <!-- File Name & Icon -->
+                        <DataGridTemplateColumn Header="File Name" Width="2.5*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                                        <TextBlock Text="{Binding FileIconGlyph}" FontSize="15" Margin="0,0,8,0" VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding FileName}" FontWeight="SemiBold" FontSize="12.5" Foreground="#F0F6FC" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Size -->
+                        <DataGridTextColumn Header="Size" Binding="{Binding FormattedSize}" Width="1*" />
+
+                        <!-- Progress Bar & % -->
+                        <DataGridTemplateColumn Header="Progress" Width="2.2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="8,0" VerticalAlignment="Center">
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <ProgressBar Value="{Binding ProgressPercent, Mode=OneWay}" Maximum="100" Height="6" Margin="0,0,0,4" />
+                                        <Grid Grid.Row="1">
+                                            <TextBlock Text="{Binding FormattedProgress}" FontSize="10.5" Foreground="#8B949E" HorizontalAlignment="Left" />
+                                            <TextBlock Text="{Binding ProgressPercent, StringFormat={}{0:0.0}%, Mode=OneWay}" FontSize="10.5" FontWeight="SemiBold" Foreground="#58A6FF" HorizontalAlignment="Right" />
+                                        </Grid>
+                                    </Grid>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Speed -->
+                        <DataGridTemplateColumn Header="Speed" Width="1.2*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding FormattedSpeed}" FontWeight="SemiBold" Foreground="#58A6FF" VerticalAlignment="Center" Margin="10,0" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- ETA -->
+                        <DataGridTextColumn Header="ETA" Binding="{Binding EtaString}" Width="1*" />
+
+                        <!-- Status Badge -->
+                        <DataGridTemplateColumn Header="Status" Width="1.3*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="#161B22" BorderBrush="{Binding StatusBadgeColor}" BorderThickness="1" CornerRadius="10" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0">
+                                        <TextBlock Text="{Binding StatusDisplay}" FontSize="11" FontWeight="SemiBold" Foreground="{Binding StatusBadgeColor}" />
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Protocol / Mirrors -->
+                        <DataGridTemplateColumn Header="Protocol" Width="1.1*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="#161B22" BorderBrush="#30363D" BorderThickness="1" CornerRadius="4" Padding="6,2" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="6,0">
+                                        <TextBlock Text="{Binding ProtocolDisplay}" FontSize="10.5" Foreground="#7EE787" FontWeight="SemiBold" />
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <!-- Connections -->
+                        <DataGridTemplateColumn Header="Streams" Width="0.9*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding ConnectionsDisplay}" FontSize="11" Foreground="#8B949E" VerticalAlignment="Center" Margin="8,0" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <!-- Empty State Message when no downloads -->
+                <StackPanel x:Name="EmptyStatePanel" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed">
+                    <TextBlock Text="🚀" FontSize="42" HorizontalAlignment="Center" Margin="0,0,0,10" />
+                    <TextBlock Text="No active downloads" FontSize="16" FontWeight="SemiBold" Foreground="#F0F6FC" HorizontalAlignment="Center" />
+                    <TextBlock Text="Click '+ Add Download' or '📋 Add Batch' to start" FontSize="12" Foreground="#8B949E" HorizontalAlignment="Center" Margin="0,6,0,16" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="➕ Add Download" Style="{StaticResource PrimaryButton}" Margin="0,0,10,0" Click="AddDownload_Click" Width="145" />
+                        <Button Content="📋 Add Batch" Style="{StaticResource ToolButton}" Click="AddBatch_Click" Width="130" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <!-- 4. GridSplitter -->
+            <GridSplitter Grid.Row="3" Height="5" HorizontalAlignment="Stretch" Background="#161B22" Cursor="SizeNS" />
+
+            <!-- 5. Bottom Visualizer Panel (Segment Heatmap + Live Speed Graph) -->
+            <Border Grid.Row="4" Background="#161B22" BorderBrush="#30363D" BorderThickness="0,1,0,0" Padding="14,10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="32" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Details Header & Legend -->
+                    <Grid Grid.Row="0" Margin="0,0,0,6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Selected Item Title -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="📊 SEGMENT HEATMAP &amp; NETWORK REAL-TIME THROUGHPUT:" FontWeight="Bold" FontSize="11" Foreground="#58A6FF" Margin="0,0,8,0" />
+                            <TextBlock x:Name="SelectedDownloadLabel" Text="No download selected" FontWeight="SemiBold" FontSize="11" Foreground="#F0F6FC" />
+                        </StackPanel>
+
+                        <!-- Heatmap Legend -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Background="#2F81F7" Width="10" Height="10" CornerRadius="2" Margin="0,0,4,0" />
+                            <TextBlock Text="Active Stream" FontSize="10" Foreground="#8B949E" Margin="0,0,12,0" />
+
+                            <Border Background="#238636" Width="10" Height="10" CornerRadius="2" Margin="0,0,4,0" />
+                            <TextBlock Text="Completed" FontSize="10" Foreground="#8B949E" Margin="0,0,12,0" />
+
+                            <Border Background="#D29922" Width="10" Height="10" CornerRadius="2" Margin="0,0,4,0" />
+                            <TextBlock Text="Tail Steal" FontSize="10" Foreground="#8B949E" Margin="0,0,12,0" />
+
+                            <Border Background="#21262D" Width="10" Height="10" CornerRadius="2" Margin="0,0,4,0" />
+                            <TextBlock Text="Pending" FontSize="10" Foreground="#8B949E" />
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Heatmap Visualizer Bar -->
+                    <controls:SegmentHeatmapControl Grid.Row="1" x:Name="HeatmapControl" Margin="0,0,0,8" />
+
+                    <!-- Live Real-Time Speed Graph -->
+                    <controls:SpeedGraphControl Grid.Row="2" x:Name="SpeedGraph" />
+                </Grid>
+            </Border>
+
+            <!-- 6. Bottom StatusBar -->
+            <Border Grid.Row="5" Background="#090D13" BorderBrush="#30363D" BorderThickness="0,1,0,0" Padding="14,0">
+                <Grid VerticalAlignment="Center">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="⚡ Engine: " FontSize="11" Foreground="#8B949E" />
+                        <TextBlock Text="MsQuic HTTP/3 • Zero-HoL Transport • Sliding Window Queue • Direct IOCP NTFS" FontSize="11" FontWeight="SemiBold" Foreground="#3FB950" Margin="0,0,16,0" />
+
+                        <TextBlock Text="Downloads: " FontSize="11" Foreground="#8B949E" />
+                        <TextBlock x:Name="StatusBarActiveText" Text="0 Active" FontSize="11" FontWeight="SemiBold" Foreground="#58A6FF" Margin="0,0,8,0" />
+                        <TextBlock x:Name="StatusBarCompletedText" Text="• 0 Completed" FontSize="11" Foreground="#8B949E" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="Total Speed: " FontSize="11" Foreground="#8B949E" />
+                        <TextBlock x:Name="StatusBarSpeedText" Text="0 B/s" FontSize="11" FontWeight="Bold" Foreground="#58A6FF" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

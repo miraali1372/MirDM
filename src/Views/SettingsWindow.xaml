@@ -1,0 +1,156 @@
+<Window x:Class="MirDM.Views.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Settings — MirDM"
+        Width="550" Height="560"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        Background="#0D1117"
+        Foreground="#F0F6FC">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="34" CornerRadius="0" GlassFrameThickness="0" ResizeBorderThickness="0" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Border BorderBrush="#30363D" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="34" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="55" />
+            </Grid.RowDefinitions>
+
+            <!-- TitleBar -->
+            <Grid Grid.Row="0" Background="#161B22">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
+                    <TextBlock Text="⚙" FontSize="14" Margin="0,0,8,0" VerticalAlignment="Center" />
+                    <TextBlock Text="MirDM Preferences &amp; Tuning" FontWeight="SemiBold" FontSize="12.5" Foreground="#F0F6FC" VerticalAlignment="Center" />
+                </StackPanel>
+
+                <Button Grid.Column="1" Style="{StaticResource TitleBarCloseButton}" Click="CloseButton_Click" WindowChrome.IsHitTestVisibleInChrome="True">
+                    <TextBlock Text="✕" FontSize="11" Foreground="#8B949E" />
+                </Button>
+            </Grid>
+
+            <!-- Settings Content -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="22,16,22,10">
+                <StackPanel>
+                    <!-- Default Download Directory -->
+                    <TextBlock Text="Default Download Directory:" FontWeight="SemiBold" FontSize="12" Foreground="#8B949E" Margin="0,0,0,6" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="DownloadDirTextBox" Height="34" FontSize="12" Margin="0,0,8,0" />
+                        <Button Grid.Column="1" Content="Browse..." Style="{StaticResource ToolButton}" Height="34" Width="80" Click="Browse_Click" />
+                    </Grid>
+
+                    <!-- Network & Engine Options -->
+                    <TextBlock Text="ACCELERATION &amp; NETWORK ENGINE" FontWeight="Bold" FontSize="11" Foreground="#58A6FF" Margin="0,18,0,8" />
+
+                    <!-- Default Connections -->
+                    <Grid Margin="0,4,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="160" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Default Concurrent Connections:" FontWeight="SemiBold" FontSize="12" Foreground="#F0F6FC" />
+                            <TextBlock Text="Parallel TCP streams per download file" FontSize="11" Foreground="#8B949E" />
+                        </StackPanel>
+                        <ComboBox Grid.Column="1" x:Name="DefaultConnectionsCombo" Height="32" Background="#161B22" Foreground="#F0F6FC" FontSize="12" VerticalContentAlignment="Center">
+                            <ComboBoxItem Content="⚡ Auto (Dynamic Concurrency)" IsSelected="True" />
+                            <ComboBoxItem Content="4 Connections" />
+                            <ComboBoxItem Content="8 Connections" />
+                            <ComboBoxItem Content="16 Connections (Fast)" />
+                            <ComboBoxItem Content="24 Connections" />
+                            <ComboBoxItem Content="32 Connections (Turbo)" />
+                            <ComboBoxItem Content="64 Connections (Extreme)" />
+                        </ComboBox>
+                    </Grid>
+
+                    <!-- Smart CDN RTT Discovery -->
+                    <CheckBox x:Name="DnsRacingCheck" Margin="0,8,0,4" VerticalContentAlignment="Center" IsChecked="True">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="Smart CDN RTT Discovery (DNS Edge Racing)" FontWeight="SemiBold" FontSize="12" Foreground="#F0F6FC" />
+                            <TextBlock Text="Pings all IP endpoints in parallel and binds streams to lowest latency edge server" FontSize="11" Foreground="#8B949E" />
+                        </StackPanel>
+                    </CheckBox>
+
+                    <!-- HTTP/3 & QUIC Transport -->
+                    <CheckBox x:Name="Http3Check" Margin="0,8,0,4" VerticalContentAlignment="Center" IsChecked="True">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="HTTP/3 &amp; QUIC Transport (Zero Head-of-Line Blocking)" FontWeight="SemiBold" FontSize="12" Foreground="#F0F6FC" />
+                            <TextBlock Text="Enables RFC 9114 HTTP/3 over MsQuic with 0-RTT/1-RTT and fallback to HTTP/2" FontSize="11" Foreground="#8B949E" />
+                        </StackPanel>
+                    </CheckBox>
+
+                    <!-- Proportional Chunk Sizing -->
+                    <CheckBox x:Name="ProportionalChunkingCheck" Margin="0,8,0,4" VerticalContentAlignment="Center" IsChecked="True">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="Proportional Chunk Sizing (Latency &amp; Throughput Aware)" FontWeight="SemiBold" FontSize="12" Foreground="#F0F6FC" />
+                            <TextBlock Text="Allocates partition sizes proportional to measured worker speeds to eliminate tail resegmentation" FontSize="11" Foreground="#8B949E" />
+                        </StackPanel>
+                    </CheckBox>
+
+                    <!-- Sliding Window Pipelined Chunking -->
+                    <CheckBox x:Name="PipelinedWindowCheck" Margin="0,8,0,4" VerticalContentAlignment="Center" IsChecked="True">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="Sliding Window Chunk Scheduling (Pipelined Queue)" FontWeight="SemiBold" FontSize="12" Foreground="#F0F6FC" />
+                            <TextBlock Text="Workers continuously pull optimal 2MB blocks from a concurrent queue over keep-alive sockets" FontSize="11" Foreground="#8B949E" />
+                        </StackPanel>
+                    </CheckBox>
+
+                    <!-- Dynamic Splitting -->
+                    <CheckBox x:Name="DynamicSplittingCheck" Margin="0,8,0,4" VerticalContentAlignment="Center" IsChecked="True">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="Dynamic In-Flight Chunk Re-segmentation" FontWeight="SemiBold" FontSize="12" Foreground="#F0F6FC" />
+                            <TextBlock Text="Continuously splits remaining largest chunks to keep all connection workers busy" FontSize="11" Foreground="#8B949E" />
+                        </StackPanel>
+                    </CheckBox>
+
+                    <!-- Tail Latency Elimination -->
+                    <CheckBox x:Name="TailLatencyCheck" Margin="0,8,0,4" VerticalContentAlignment="Center" IsChecked="True">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="Work-Stealing Tail Latency Elimination" FontWeight="SemiBold" FontSize="12" Foreground="#F0F6FC" />
+                            <TextBlock Text="Prevents slow straggler workers at 95%+ completion by aggressively stealing end-bytes" FontSize="11" Foreground="#8B949E" />
+                        </StackPanel>
+                    </CheckBox>
+
+                    <TextBlock Text="SYSTEM &amp; INTEGRATION" FontWeight="Bold" FontSize="11" Foreground="#58A6FF" Margin="0,18,0,8" />
+
+                    <!-- Tray Icon -->
+                    <CheckBox x:Name="MinimizeToTrayCheck" Margin="0,6,0,4" VerticalContentAlignment="Center" IsChecked="True">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="Minimize to Windows System Tray" FontWeight="SemiBold" FontSize="12" Foreground="#F0F6FC" />
+                            <TextBlock Text="Keeps MirDM running in the notification area when minimized or closed" FontSize="11" Foreground="#8B949E" />
+                        </StackPanel>
+                    </CheckBox>
+
+                    <!-- Clipboard Monitoring -->
+                    <CheckBox x:Name="ClipboardCheck" Margin="0,8,0,4" VerticalContentAlignment="Center" IsChecked="True">
+                        <StackPanel Margin="6,0,0,0">
+                            <TextBlock Text="Clipboard URL Auto-Detection" FontWeight="SemiBold" FontSize="12" Foreground="#F0F6FC" />
+                            <TextBlock Text="Automatically fills URL input when copying download links" FontSize="11" Foreground="#8B949E" />
+                        </StackPanel>
+                    </CheckBox>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Bottom Action Buttons -->
+            <Border Grid.Row="2" Background="#161B22" BorderBrush="#30363D" BorderThickness="0,1,0,0" Padding="18,10">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Cancel" Style="{StaticResource ToolButton}" Width="85" Margin="0,0,10,0" Click="CloseButton_Click" />
+                    <Button Content="Save Preferences" Style="{StaticResource PrimaryButton}" Width="135" Click="SaveButton_Click" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</Window>

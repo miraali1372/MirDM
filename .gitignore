@@ -1,0 +1,32 @@
+## Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+## Visual Studio / JetBrains Rider / VS Code
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+.idea/
+.vscode/
+
+## Release packages & executables
+*.zip
+*.tar.gz
+*.exe
+*.dll
+*.pdb
+releases/*.zip
+
+## Test and diagnostic logs
+test_result.log
+*.log
+
+## OS Generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
